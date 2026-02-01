@@ -1,1926 +1,329 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS Architecture Design Studio - AI-Powered Professional Tool</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AWS Architecture Design Studio (Rewritten + Fixed)</title>
 
-        body {
-            font-family: 'Amazon Ember', 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #232f3e 0%, #1a242f 100%);
-            color: #fff;
-            padding: 20px;
-            min-height: 100vh;
-        }
+<style>
+/* ===========================
+   GLOBAL STYLES
+=========================== */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #1a242f;
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-        .header {
-            background: #232f3e;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #ff9900;
-        }
+h1, h2 {
+  color: #ff9900;
+  margin: 0 0 8px 0;
+}
 
-        .header h1 {
-            color: #ff9900;
-            margin-bottom: 5px;
-            font-size: 26px;
-        }
+button {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-        .header .tagline {
-            color: #3498db;
-            font-size: 13px;
-            font-weight: bold;
-        }
+.btn-primary { background: #ff9900; color: #232f3e; }
+.btn-success { background: #2ecc71; color: #fff; }
+.btn-secondary { background: #3498db; color: #fff; }
+.btn-danger { background: #e74c3c; color: #fff; }
 
-        .container {
-            display: grid;
-            grid-template-columns: 250px 1fr 400px;
-            gap: 20px;
-            max-width: 1900px;
-            margin: 0 auto;
-            height: calc(100vh - 140px);
-        }
+input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #111;
+  color: #fff;
+}
 
-        .panel {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            overflow-y: auto;
-        }
+/* ===========================
+   HEADER
+=========================== */
+header {
+  padding: 14px 18px;
+  background: #232f3e;
+  border-bottom: 3px solid #ff9900;
+}
 
-        .panel h2 {
-            color: #ff9900;
-            margin-bottom: 15px;
-            font-size: 18px;
-            border-bottom: 2px solid #ff9900;
-            padding-bottom: 8px;
-            position: sticky;
-            top: 0;
-            background: rgba(35, 47, 62, 0.95);
-            z-index: 10;
-        }
+header p {
+  margin: 4px 0 0 0;
+  color: #3498db;
+  font-size: 13px;
+}
 
-        .service-category {
-            margin-bottom: 20px;
-        }
+/* ===========================
+   LAYOUT
+=========================== */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr 380px;
+  gap: 12px;
+  padding: 12px;
+}
 
-        .category-title {
-            color: #3498db;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            padding: 5px;
-            background: rgba(52, 152, 219, 0.2);
-            border-radius: 4px;
-        }
+.panel {
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 12px;
+  overflow: auto;
+}
 
-        .service-item {
-            background: rgba(255, 153, 0, 0.1);
-            border: 1px solid #ff9900;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 8px;
-            cursor: grab;
-            transition: all 0.3s;
-            font-size: 13px;
-        }
+/* ===========================
+   LEFT: SERVICES
+=========================== */
+.service {
+  background: rgba(255,153,0,0.15);
+  border: 1px solid #ff9900;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  cursor: grab;
+  font-size: 13px;
+}
 
-        .service-item:hover {
-            background: rgba(255, 153, 0, 0.2);
-            transform: translateX(5px);
-        }
+/* ===========================
+   CANVAS
+=========================== */
+.workspace {
+  display: flex;
+  flex-direction: column;
+}
 
-        .service-icon {
-            width: 24px;
-            display: inline-block;
-            margin-right: 8px;
-            vertical-align: middle;
-            font-size: 18px;
-        }
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 
-        .workspace-container {
-            position: relative;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            overflow: hidden;
-        }
+#canvas {
+  position: relative;
+  flex: 1;
+  min-height: 700px;
+  background:
+    linear-gradient(rgba(52,152,219,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(52,152,219,0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  border-radius: 8px;
+}
 
-        .controls {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
+.node {
+  position: absolute;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,153,0,0.2);
+  border: 2px solid #ff9900;
+  cursor: move;
+  font-size: 12px;
+}
 
-        .btn {
-            background: #ff9900;
-            color: #232f3e;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            font-size: 12px;
-        }
+/* ===========================
+   RIGHT: AI PANEL
+=========================== */
+.result {
+  background: rgba(46,204,113,0.12);
+  border-left: 4px solid #2ecc71;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
 
-        .btn:hover {
-            background: #ec7211;
-            transform: translateY(-2px);
-        }
+.error {
+  background: #e74c3c;
+  border-left: 4px solid #c0392b;
+  padding: 10px;
+  border-radius: 6px;
+}
 
-        .btn-secondary {
-            background: #3498db;
-        }
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top: 3px solid #ff9900;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 10px auto;
+}
 
-        .btn-success {
-            background: #2ecc71;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-        }
-
-        .btn-code {
-            background: #9b59b6;
-        }
-
-        .smart-input-container {
-            background: rgba(52, 152, 219, 0.1);
-            border: 2px solid #3498db;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-
-        .smart-input-label {
-            color: #3498db;
-            font-weight: bold;
-            margin-bottom: 6px;
-            font-size: 13px;
-        }
-
-        .smart-input-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        #smart-input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #3498db;
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 13px;
-        }
-
-        #canvas {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            min-height: 1200px;
-            min-width: 1400px;
-            background: 
-                linear-gradient(rgba(52, 152, 219, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(52, 152, 219, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
-
-        .architecture-element {
-            position: absolute;
-            min-width: 100px;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: move;
-            user-select: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .element-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .element-title {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: bold;
-            font-size: 13px;
-            flex-wrap: wrap;
-        }
-
-        .element-name-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            width: 100px;
-        }
-
-        .element-controls {
-            display: flex;
-            gap: 4px;
-        }
-
-        .element-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .element-content {
-            min-height: 30px;
-            font-size: 11px;
-            color: #aaa;
-        }
-
-        .element-region {
-            background: rgba(52, 152, 219, 0.1);
-            border: 3px solid #3498db;
-        }
-
-        .element-vpc {
-            background: rgba(39, 174, 96, 0.1);
-            border: 2px solid #27ae60;
-        }
-
-        .element-subnet-public {
-            background: rgba(46, 204, 113, 0.1);
-            border: 2px dashed #2ecc71;
-        }
-
-        .element-subnet-private {
-            background: rgba(231, 76, 60, 0.1);
-            border: 2px dashed #e74c3c;
-        }
-
-        .element-service {
-            background: rgba(255, 153, 0, 0.15);
-            border: 2px solid #ff9900;
-        }
-
-        .resize-handle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #ff9900;
-            border: 1px solid white;
-            border-radius: 50%;
-            cursor: nwse-resize;
-            right: -5px;
-            bottom: -5px;
-        }
-
-        .empty-state {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #666;
-            pointer-events: none;
-        }
-
-        .stats-bar {
-            background: rgba(52, 152, 219, 0.1);
-            border: 1px solid #3498db;
-            border-radius: 6px;
-            padding: 6px 12px;
-            margin-bottom: 8px;
-            font-size: 11px;
-            display: flex;
-            justify-content: space-around;
-            gap: 8px;
-        }
-
-        .stat-item {
-            color: #3498db;
-            font-weight: bold;
-        }
-
-        .validation-result {
-            background: rgba(46, 204, 113, 0.1);
-            border-left: 4px solid #2ecc71;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            line-height: 1.6;
-            font-size: 13px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid #ff9900;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #claude-response {
-            white-space: pre-wrap;
-            line-height: 1.6;
-        }
-
-        #claude-response strong {
-            color: #ff9900;
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 4px;
-        }
-
-        .example-chips {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-top: 6px;
-        }
-
-        .chip {
-            background: rgba(52, 152, 219, 0.2);
-            border: 1px solid #3498db;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        .chip:hover {
-            background: rgba(52, 152, 219, 0.4);
-        }
-
-        .info-badge {
-            background: rgba(52, 152, 219, 0.3);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-left: 4px;
-        }
-
-        svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-content {
-            background: #232f3e;
-            margin: 5% auto;
-            padding: 20px;
-            border: 2px solid #ff9900;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 900px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #ff9900;
-        }
-
-        .modal-close {
-            color: #ff9900;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .code-block {
-            background: #1a1a1a;
-            border: 1px solid #3498db;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 10px 0;
-            overflow-x: auto;
-        }
-
-        .code-block pre {
-            margin: 0;
-            color: #2ecc71;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .code-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .code-tab {
-            background: rgba(52, 152, 219, 0.2);
-            border: 1px solid #3498db;
-            padding: 8px 16px;
-            border-radius: 6px 6px 0 0;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .code-tab.active {
-            background: #3498db;
-        }
-    </style>
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
 </head>
+
 <body>
-    <div class="header">
-        <h1>🏗️ AWS Architecture Design Studio - AI-Powered Professional Tool</h1>
-        <p class="tagline">✨ Type services → Auto-design → Validate → Export to IaC | Built by Akramul</p>
+
+<header>
+  <h1>🏗️ AWS Architecture Design Studio</h1>
+  <p>Rewritten • Fixed Gemini API • One-file tool</p>
+</header>
+
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="panel">
+    <h2>AWS Services</h2>
+    <div class="service" draggable="true" data-name="Region">🌍 Region</div>
+    <div class="service" draggable="true" data-name="VPC">🌐 VPC</div>
+    <div class="service" draggable="true" data-name="ALB">🔀 ALB</div>
+    <div class="service" draggable="true" data-name="EC2">🖥️ EC2</div>
+    <div class="service" draggable="true" data-name="RDS">🗄️ RDS</div>
+    <div class="service" draggable="true" data-name="NAT Gateway">🚪 NAT Gateway</div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="panel workspace">
+    <div class="toolbar">
+      <button class="btn-success" onclick="generateAI()">🤖 Generate</button>
+      <button class="btn-primary" onclick="validateAI()">✓ Validate</button>
+      <button class="btn-danger" onclick="clearCanvas()">🗑️ Clear</button>
     </div>
+    <div id="canvas"></div>
+  </div>
 
-    <div class="container">
-        <div class="panel">
-            <h2>AWS Services</h2>
-            <div id="services-list"></div>
-        </div>
+  <!-- RIGHT -->
+  <div class="panel">
+    <h2>AI Feedback</h2>
 
-        <div class="workspace-container">
-            <div class="controls">
-                <button class="btn btn-success" onclick="generateFullDesign()">🤖 Claude: Generate Full Architecture</button>
-                <button class="btn" onclick="validateArchitecture()">✓ Validate Design</button>
-                <button class="btn btn-secondary" onclick="autoConnectServices()">🔗 Auto-Connect Flow</button>
-                <button class="btn btn-code" onclick="exportToCode()">💻 Export to IaC</button>
-                <button class="btn btn-danger" onclick="clearArchitecture()">🗑️ Clear</button>
-            </div>
+    <input id="apiKey" placeholder="Gemini API Key (AIza...)" />
+    <button class="btn-primary" style="margin:8px 0" onclick="saveKey()">Save Key</button>
 
-            <div class="smart-input-container">
-                <div class="smart-input-label">🧠 Type services to auto-design (press Enter):</div>
-                <div class="smart-input-row">
-                    <input type="text" id="smart-input" placeholder="e.g., region vpc igw alb 2 ec2 rds" 
-                        onkeypress="if(event.key === 'Enter') autoDesign()">
-                    <button class="btn btn-success" onclick="autoDesign()">🚀 Auto-Design</button>
-                </div>
-                <div class="example-chips">
-                    <div class="chip" onclick="setExample('region vpc igw alb 2 ec2 rds')">3-Tier Web App</div>
-                    <div class="chip" onclick="setExample('region vpc 2 az nat alb asg rds s3')">HA Production</div>
-                    <div class="chip" onclick="setExample('vpc lambda dynamodb api gateway')">Serverless API</div>
-                </div>
-            </div>
-
-            <div class="stats-bar">
-                <span class="stat-item">Elements: <span id="element-count">0</span></span>
-                <span class="stat-item">Connections: <span id="connection-count">0</span></span>
-                <span class="stat-item">Auto-Fixes: <span id="correction-count">0</span></span>
-            </div>
-
-            <div style="display: flex; gap: 10px; padding: 8px 15px; background: rgba(41, 128, 185, 0.08); font-size: 11px; align-items: center; border-top: 1px solid rgba(52, 152, 219, 0.2);">
-                <div style="font-weight: 600; color: #2c3e50;">Flow Legend:</div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <div style="width: 25px; height: 3px; background: #2ecc71;"></div>
-                    <span style="color: #2ecc71;">●</span>
-                    <span>Inbound</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <div style="width: 25px; height: 3px; background: #3498db;"></div>
-                    <span style="color: #3498db;">●</span>
-                    <span>Balance</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <div style="width: 25px; height: 3px; background: #9b59b6;"></div>
-                    <span style="color: #9b59b6;">●</span>
-                    <span>Database</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <div style="width: 25px; height: 3px; background: #e67e22;"></div>
-                    <span style="color: #e67e22;">●</span>
-                    <span>Updates</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <div style="width: 25px; height: 3px; background: #e74c3c;"></div>
-                    <span style="color: #e74c3c;">●</span>
-                    <span>Exit</span>
-                </div>
-            </div>
-
-            <div style="position: relative; height: calc(100% - 175px); overflow: auto;">
-                <svg id="connections-svg">
-                    <defs>
-                        <!-- Green arrow for inbound traffic -->
-                        <marker id="arrowhead-2ecc71" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#2ecc71" />
-                        </marker>
-                        <!-- Blue arrow for load balancing -->
-                        <marker id="arrowhead-3498db" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#3498db" />
-                        </marker>
-                        <!-- Purple arrow for database -->
-                        <marker id="arrowhead-9b59b6" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#9b59b6" />
-                        </marker>
-                        <!-- Orange arrow for outbound -->
-                        <marker id="arrowhead-e67e22" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#e67e22" />
-                        </marker>
-                        <!-- Red arrow for exit -->
-                        <marker id="arrowhead-e74c3c" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#e74c3c" />
-                        </marker>
-                    </defs>
-                </svg>
-                <div id="canvas">
-                    <div class="empty-state">
-                        <h3>🧠 Intelligent Auto-Design</h3>
-                        <p>Type: <strong>region vpc igw alb 2 ec2 rds</strong></p>
-                        <p style="margin-top: 8px; font-size: 12px;">Watch it auto-design with proper AWS architecture!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h2>AI Feedback & Validation</h2>
-            <div id="validation-results">
-                <p style="color: #999; font-size: 13px; line-height: 1.6;">
-                    <strong>🎯 Three Powerful Features:</strong><br><br>
-                    <strong>1. Auto-Design:</strong> Type services, get intelligent layout<br>
-                    <strong>2. Auto-Connect:</strong> Click to auto-generate data flow arrows<br>
-                    <strong>3. Export to IaC:</strong> Generate Terraform/CloudFormation code<br><br>
-                    Try: <code style="background: rgba(52,152,219,0.2); padding: 2px 6px;">region vpc igw alb 2 ec2 rds</code>
-                </p>
-            </div>
-        </div>
+    <div id="output">
+      <p style="color:#aaa;font-size:13px">
+        Add services → Validate or Generate using Gemini AI
+      </p>
     </div>
+  </div>
 
-    <!-- Code Export Modal -->
-    <div id="codeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 style="color: #ff9900;">💻 Export to Infrastructure as Code (IaC)</h2>
-                <span class="modal-close" onclick="closeCodeModal()">&times;</span>
-            </div>
-            <div class="code-tabs">
-                <div class="code-tab active" onclick="switchCodeTab('terraform')">Terraform (HCL)</div>
-                <div class="code-tab" onclick="switchCodeTab('cloudformation')">CloudFormation (YAML)</div>
-            </div>
-            <div id="terraform-code" class="code-block">
-                <pre id="terraform-content"></pre>
-            </div>
-            <div id="cloudformation-code" class="code-block" style="display: none;">
-                <pre id="cloudformation-content"></pre>
-            </div>
-            <button class="btn btn-success" onclick="copyCode()">📋 Copy Code</button>
-            <button class="btn btn-secondary" onclick="downloadCode()">💾 Download File</button>
-        </div>
-    </div>
+</div>
 
-    <script>
-        const serviceCategories = {
-            'Infrastructure': [
-                { name: 'Region', icon: '🌎', type: 'infrastructure', container: true },
-                { name: 'VPC', icon: '🌐', type: 'networking', container: true },
-                { name: 'Availability Zone', icon: '🏢', type: 'infrastructure', container: true },
-                { name: 'Public Subnet', icon: '🟢', type: 'networking', container: true, subnetType: 'public' },
-                { name: 'Private Subnet', icon: '🔴', type: 'networking', container: true, subnetType: 'private' }
-            ],
-            'Compute': [
-                { name: 'EC2', icon: '🖥️', type: 'compute' },
-                { name: 'Auto Scaling Group', icon: '📊', type: 'compute' },
-                { name: 'Lambda', icon: '⚡', type: 'compute' },
-                { name: 'ECS', icon: '📦', type: 'container' },
-                { name: 'EKS', icon: '☸️', type: 'container' }
-            ],
-            'Database': [
-                { name: 'RDS', icon: '🗄️', type: 'database' },
-                { name: 'DynamoDB', icon: '⚡', type: 'database' },
-                { name: 'ElastiCache', icon: '⚡', type: 'cache' },
-                { name: 'Aurora', icon: '🌟', type: 'database' }
-            ],
-            'Storage': [
-                { name: 'S3', icon: '🪣', type: 'storage' },
-                { name: 'EBS', icon: '💾', type: 'storage' },
-                { name: 'EFS', icon: '📁', type: 'storage' }
-            ],
-            'Networking': [
-                { name: 'ALB', icon: '🔀', type: 'networking' },
-                { name: 'NLB', icon: '⚡', type: 'networking' },
-                { name: 'NAT Gateway', icon: '🚪', type: 'networking' },
-                { name: 'Internet Gateway', icon: '🌐', type: 'networking' },
-                { name: 'API Gateway', icon: '🔌', type: 'api' }
-            ],
-            'Security': [
-                { name: 'Security Group', icon: '🛡️', type: 'security' },
-                { name: 'NACL', icon: '🚧', type: 'security' },
-                { name: 'WAF', icon: '🛡️', type: 'security' },
-                { name: 'IAM', icon: '🔐', type: 'security' }
-            ],
-            'Management': [
-                { name: 'CloudWatch', icon: '📊', type: 'monitoring' },
-                { name: 'CloudTrail', icon: '👣', type: 'security' }
-            ],
-            'Global': [
-                { name: 'CloudFront', icon: '🌍', type: 'cdn' },
-                { name: 'Route 53', icon: '🗺️', type: 'dns' }
-            ]
-        };
+<script>
+/* ======================================================
+   BASIC CANVAS LOGIC
+====================================================== */
+const canvas = document.getElementById("canvas");
+let nodes = [];
 
-        let elements = [];
-        let connections = [];
-        let elementCounter = 0;
-        let correctionCount = 0;
-        let currentCodeTab = 'terraform';
+document.querySelectorAll(".service").forEach(s => {
+  s.addEventListener("dragstart", e => {
+    e.dataTransfer.setData("text/plain", s.dataset.name);
+  });
+});
 
-        // Initialize services list
-        function initServices() {
-            const servicesList = document.getElementById('services-list');
-            for (const [category, services] of Object.entries(serviceCategories)) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'service-category';
-                const categoryTitle = document.createElement('div');
-                categoryTitle.className = 'category-title';
-                categoryTitle.textContent = category;
-                categoryDiv.appendChild(categoryTitle);
-                services.forEach(service => {
-                    const serviceItem = document.createElement('div');
-                    serviceItem.className = 'service-item';
-                    serviceItem.draggable = true;
-                    serviceItem.innerHTML = `
-                        <span class="service-icon">${service.icon}</span>
-                        <strong>${service.name}</strong>
-                        ${service.container ? '<span class="info-badge">Container</span>' : ''}
-                    `;
-                    serviceItem.dataset.service = JSON.stringify(service);
-                    serviceItem.addEventListener('dragstart', (e) => {
-                        e.dataTransfer.setData('text/plain', e.target.dataset.service);
-                    });
-                    categoryDiv.appendChild(serviceItem);
-                });
-                servicesList.appendChild(categoryDiv);
-            }
-        }
+canvas.addEventListener("dragover", e => e.preventDefault());
 
-        // Canvas drop setup
-        function setupCanvas() {
-            const canvas = document.getElementById('canvas');
-            canvas.addEventListener('dragover', (e) => e.preventDefault());
-            canvas.addEventListener('drop', (e) => {
-                e.preventDefault();
-                const serviceData = e.dataTransfer.getData('text/plain');
-                if (serviceData) {
-                    const service = JSON.parse(serviceData);
-                    const rect = canvas.getBoundingClientRect();
-                    addElement(service, e.clientX - rect.left, e.clientY - rect.top);
-                }
-            });
-        }
+canvas.addEventListener("drop", e => {
+  e.preventDefault();
+  const name = e.dataTransfer.getData("text/plain");
+  addNode(name, e.offsetX, e.offsetY);
+});
 
-        function addElement(service, x, y, w, h) {
-            elementCounter++;
-            const id = `el-${elementCounter}`;
-            
-            // Optimal fixed sizes that work well
-            const sizes = {
-                'Region': { w: 1100, h: 650 },
-                'VPC': { w: 950, h: 500 },
-                'Availability Zone': { w: 400, h: 400 },
-                'Public Subnet': { w: 420, h: 180 },
-                'Private Subnet': { w: 420, h: 180 },
-                'default': { w: 140, h: 90 }
-            };
-            
-            const size = sizes[service.name] || sizes.default;
-            const width = w || size.w;
-            const height = h || size.h;
-            
-            let className = 'element-service';
-            if (service.name === 'Region') className = 'element-region';
-            else if (service.name === 'VPC') className = 'element-vpc';
-            else if (service.subnetType === 'public') className = 'element-subnet-public';
-            else if (service.subnetType === 'private') className = 'element-subnet-private';
-            
-            const el = document.createElement('div');
-            el.className = `architecture-element ${className}`;
-            el.id = id;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
-            el.style.width = `${width}px`;
-            el.style.height = `${height}px`;
-            
-            let nameInput = '';
-            if (service.name === 'Region') nameInput = '<input type="text" class="element-name-input" value="us-east-1" onclick="event.stopPropagation()">';
-            else if (service.name === 'VPC') nameInput = '<input type="text" class="element-name-input" value="10.0.0.0/16" onclick="event.stopPropagation()">';
-            
-            el.innerHTML = `
-                <div class="element-header">
-                    <div class="element-title">
-                        <span class="service-icon">${service.icon}</span>
-                        <span>${service.name}</span>
-                        ${nameInput}
-                    </div>
-                    <div class="element-controls">
-                        <button class="element-btn expand-btn">↔</button>
-                        <button class="element-btn remove-btn">×</button>
-                    </div>
-                </div>
-                <div class="element-content">${service.container ? '' : service.type}</div>
-                <div class="resize-handle"></div>
-            `;
-            
-            document.getElementById('canvas').appendChild(el);
-            document.querySelector('.empty-state').style.display = 'none';
-            
-            el.querySelector('.expand-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                const currentW = parseInt(el.style.width);
-                const currentH = parseInt(el.style.height);
-                el.style.width = (currentW * 1.3) + 'px';
-                el.style.height = (currentH * 1.3) + 'px';
-            });
-            
-            el.querySelector('.remove-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                el.remove();
-                elements = elements.filter(e => e.id !== id);
-                connections = connections.filter(c => c.from !== id && c.to !== id);
-                updateStats();
-                redrawConnections();
-                if (elements.length === 0) document.querySelector('.empty-state').style.display = 'block';
-            });
-            
-            el.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('expand-btn') || e.target.classList.contains('remove-btn') || 
-                    e.target.classList.contains('resize-handle') || e.target.classList.contains('element-name-input')) return;
-                
-                let startX = e.clientX - el.offsetLeft;
-                let startY = e.clientY - el.offsetTop;
-                
-                function onMove(e) {
-                    el.style.left = (e.clientX - startX) + 'px';
-                    el.style.top = (e.clientY - startY) + 'px';
-                    const item = elements.find(i => i.id === id);
-                    if (item) {
-                        item.x = parseInt(el.style.left);
-                        item.y = parseInt(el.style.top);
-                    }
-                    redrawConnections();
-                }
-                
-                function onUp() {
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onUp);
-                }
-                
-                document.addEventListener('mousemove', onMove);
-                document.addEventListener('mouseup', onUp);
-            });
-            
-            const handle = el.querySelector('.resize-handle');
-            handle.addEventListener('mousedown', (e) => {
-                e.stopPropagation();
-                const startX = e.clientX;
-                const startY = e.clientY;
-                const startW = el.offsetWidth;
-                const startH = el.offsetHeight;
-                
-                function onMove(e) {
-                    const newW = Math.max(100, startW + e.clientX - startX);
-                    const newH = Math.max(80, startH + e.clientY - startY);
-                    el.style.width = newW + 'px';
-                    el.style.height = newH + 'px';
-                }
-                
-                function onUp() {
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onUp);
-                }
-                
-                document.addEventListener('mousemove', onMove);
-                document.addEventListener('mouseup', onUp);
-            });
-            
-            elements.push({ id, service, x, y, width, height });
-            updateStats();
-        }
+function addNode(name, x, y) {
+  const el = document.createElement("div");
+  el.className = "node";
+  el.textContent = name;
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  makeDraggable(el);
+  canvas.appendChild(el);
+  nodes.push(name);
+}
 
-        function setExample(text) {
-            document.getElementById('smart-input').value = text;
-        }
+function makeDraggable(el) {
+  el.onmousedown = e => {
+    const ox = e.offsetX;
+    const oy = e.offsetY;
+    document.onmousemove = ev => {
+      el.style.left = ev.pageX - canvas.offsetLeft - ox + "px";
+      el.style.top = ev.pageY - canvas.offsetTop - oy + "px";
+    };
+    document.onmouseup = () => document.onmousemove = null;
+  };
+}
 
-        function autoDesign() {
-            const input = document.getElementById('smart-input').value.trim().toLowerCase();
-            if (!input) return;
-            correctionCount = 0;
-            const corrections = [];
-            const tokens = input.split(/[\s,]+/);
-            const services = [];
-            let i = 0;
-            while (i < tokens.length) {
-                const token = tokens[i];
-                if (!isNaN(token)) {
-                    const count = parseInt(token);
-                    i++;
-                    if (i < tokens.length) services.push({ name: tokens[i], count });
-                } else {
-                    services.push({ name: token, count: 1 });
-                }
-                i++;
-            }
-            const layout = buildIntelligentLayout(services, corrections);
-            layout.forEach(item => {
-                const service = findService(item.service);
-                if (service) {
-                    for (let j = 0; j < item.count; j++) {
-                        const offset = j * 20;
-                        addElement(service, item.x + offset, item.y + offset, item.w, item.h);
-                    }
-                }
-            });
-            if (corrections.length > 0) {
-                correctionCount = corrections.length;
-                alert('🧠 Auto-Design Complete!\n\n✅ ' + corrections.join('\n✅ '));
-            }
-            document.getElementById('smart-input').value = '';
-            updateStats();
-            setTimeout(() => autoConnectServices(), 500);
-        }
+function clearCanvas() {
+  canvas.innerHTML = "";
+  nodes = [];
+}
 
-        function buildIntelligentLayout(services, corrections) {
-            const layout = [];
-            
-            // Fixed sizes that work well for the canvas
-            const baseX = 30;
-            const baseY = 30;
-            const regionW = 1100;
-            const regionH = 650;
-            const vpcW = 950;
-            const vpcH = 500;
-            const subnetW = 420;
-            const subnetH = 180;
-            
-            const has = {
-                region: services.some(s => s.name.includes('region')),
-                vpc: services.some(s => s.name.includes('vpc')),
-                igw: services.some(s => s.name.includes('igw') || s.name.includes('internet')),
-                alb: services.some(s => s.name.includes('alb') || s.name.includes('loadbal')),
-                nat: services.some(s => s.name.includes('nat')),
-                ec2: services.some(s => s.name.includes('ec2')),
-                rds: services.some(s => s.name.includes('rds') || s.name.includes('db')),
-                eks: services.some(s => s.name.includes('eks') || s.name.includes('kubernetes') || s.name.includes('k8s')),
-                ecs: services.some(s => s.name.includes('ecs')),
-                lambda: services.some(s => s.name.includes('lambda')),
-                public: services.filter(s => s.name.includes('public')),
-                private: services.filter(s => s.name.includes('private'))
-            };
-            
-            if (!has.region && (has.vpc || has.ec2 || has.rds || has.eks || has.ecs)) {
-                has.region = true;
-                corrections.push('Added Region (required)');
-            }
-            if (!has.vpc && (has.ec2 || has.rds || has.alb || has.eks || has.ecs)) {
-                has.vpc = true;
-                corrections.push('Added VPC (required)');
-            }
-            if ((has.alb || has.nat) && has.public.length === 0) {
-                has.public = [{ name: 'public', count: 1 }];
-                corrections.push('Added Public Subnet (ALB/NAT need public)');
-            }
-            if ((has.ec2 || has.rds || has.eks || has.ecs) && has.private.length === 0) {
-                has.private = [{ name: 'private', count: 1 }];
-                corrections.push('Added Private Subnet (EC2/RDS/EKS best practice)');
-            }
-            if (has.alb && !has.igw) {
-                has.igw = true;
-                corrections.push('Added IGW (required for internet)');
-            }
-            if (has.private.length > 0 && (has.ec2 || has.eks || has.ecs) && !has.nat) {
-                has.nat = true;
-                corrections.push('Added NAT (private needs internet)');
-            }
-            
-            if (has.region) {
-                layout.push({ service: 'region', x: baseX, y: baseY, w: regionW, h: regionH, count: 1 });
-                
-                if (has.igw) {
-                    layout.push({ service: 'igw', x: baseX + (regionW/2) - 70, y: baseY + 20, w: 140, h: 70, count: 1 });
-                }
-                
-                if (has.vpc) {
-                    const vpcX = baseX + (regionW - vpcW)/2;
-                    const vpcY = baseY + (has.igw ? 100 : 60);
-                    layout.push({ service: 'vpc', x: vpcX, y: vpcY, w: vpcW, h: vpcH, count: 1 });
-                    
-                    let subnetX = vpcX + 40;
-                    const subnetY = vpcY + 60;
-                    
-                    if (has.public.length > 0) {
-                        const pubCount = has.public[0].count || 1;
-                        for (let i = 0; i < pubCount; i++) {
-                            layout.push({ service: 'public', x: subnetX, y: subnetY, w: subnetW, h: subnetH, count: 1 });
-                            if (has.alb && i === 0) {
-                                layout.push({ service: 'alb', x: subnetX + 150, y: subnetY + 50, w: 120, h: 70, count: 1 });
-                            }
-                            if (has.nat && i === 0) {
-                                layout.push({ service: 'nat', x: subnetX + 30, y: subnetY + 40, w: 100, h: 60, count: 1 });
-                            }
-                            subnetX += subnetW + 40;
-                        }
-                    }
-                    
-                    if (has.private.length > 0) {
-                        subnetX = vpcX + 40;
-                        const privY = subnetY + subnetH + 50;
-                        const privCount = has.private[0].count || 1;
-                        
-                        for (let i = 0; i < privCount; i++) {
-                            layout.push({ service: 'private', x: subnetX, y: privY, w: subnetW, h: subnetH, count: 1 });
-                            
-                            let serviceX = subnetX + 30;
-                            const serviceY = privY + 40;
-                            
-                            if (has.ec2 && i === 0) {
-                                const ec2Count = services.find(s => s.name.includes('ec2'))?.count || 1;
-                                layout.push({ service: 'ec2', x: serviceX, y: serviceY, w: 100, h: 60, count: ec2Count });
-                                serviceX += 120;
-                            }
-                            
-                            if (has.eks && i === 0) {
-                                layout.push({ service: 'eks', x: serviceX, y: serviceY, w: 100, h: 60, count: 1 });
-                                serviceX += 120;
-                            }
-                            
-                            if (has.ecs && i === 0) {
-                                layout.push({ service: 'ecs', x: serviceX, y: serviceY + 70, w: 100, h: 60, count: 1 });
-                            }
-                            
-                            if (has.rds && i === 0) {
-                                layout.push({ service: 'rds', x: subnetX + 280, y: privY + 50, w: 100, h: 70, count: 1 });
-                            }
-                            
-                            subnetX += subnetW + 40;
-                        }
-                    }
-                }
-            }
-            
-            return layout;
-        }
+/* ======================================================
+   GEMINI API (FIXED)
+====================================================== */
+const GEMINI_ENDPOINT =
+  "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
 
-        function findService(name) {
-            const map = {
-                'region': 'Region',
-                'vpc': 'VPC',
-                'igw': 'Internet Gateway',
-                'internet': 'Internet Gateway',
-                'internetgateway': 'Internet Gateway',
-                'alb': 'ALB',
-                'nlb': 'NLB',
-                'loadbalancer': 'ALB',
-                'nat': 'NAT Gateway',
-                'natgateway': 'NAT Gateway',
-                'ec2': 'EC2',
-                'instance': 'EC2',
-                'rds': 'RDS',
-                'db': 'RDS',
-                'database': 'RDS',
-                'dynamodb': 'DynamoDB',
-                'dynamo': 'DynamoDB',
-                'aurora': 'Aurora',
-                'elasticache': 'ElastiCache',
-                'cache': 'ElastiCache',
-                'redis': 'ElastiCache',
-                's3': 'S3',
-                'bucket': 'S3',
-                'ebs': 'EBS',
-                'efs': 'EFS',
-                'lambda': 'Lambda',
-                'ecs': 'ECS',
-                'eks': 'EKS',
-                'kubernetes': 'EKS',
-                'k8s': 'EKS',
-                'asg': 'Auto Scaling Group',
-                'autoscaling': 'Auto Scaling Group',
-                'autoscalinggroup': 'Auto Scaling Group',
-                'public': 'Public Subnet',
-                'publicsubnet': 'Public Subnet',
-                'private': 'Private Subnet',
-                'privatesubnet': 'Private Subnet',
-                'subnet': 'Public Subnet',
-                'az': 'Availability Zone',
-                'availabilityzone': 'Availability Zone',
-                'sg': 'Security Group',
-                'securitygroup': 'Security Group',
-                'security': 'Security Group',
-                'nacl': 'NACL',
-                'waf': 'WAF',
-                'firewall': 'WAF',
-                'iam': 'IAM',
-                'apigateway': 'API Gateway',
-                'api': 'API Gateway',
-                'cloudwatch': 'CloudWatch',
-                'monitoring': 'CloudWatch',
-                'cloudtrail': 'CloudTrail',
-                'cloudfront': 'CloudFront',
-                'cdn': 'CloudFront',
-                'route53': 'Route 53',
-                'dns': 'Route 53'
-            };
-            
-            const serviceName = map[name.toLowerCase()] || name;
-            
-            for (const services of Object.values(serviceCategories)) {
-                const found = services.find(s => s.name.toLowerCase() === serviceName.toLowerCase());
-                if (found) return found;
-            }
-            
-            return null;
-        }
+function saveKey() {
+  const k = document.getElementById("apiKey").value.trim();
+  if (!k.startsWith("AIza")) {
+    alert("Invalid Gemini API key");
+    return;
+  }
+  localStorage.setItem("GEMINI_API_KEY", k);
+  alert("API key saved");
+}
 
-        function autoConnectServices() {
-            connections = [];
-            const igw = elements.find(e => e.service.name === 'Internet Gateway');
-            const alb = elements.find(e => e.service.name === 'ALB');
-            const nat = elements.find(e => e.service.name === 'NAT Gateway');
-            const ec2List = elements.filter(e => e.service.name === 'EC2');
-            const rds = elements.find(e => e.service.name === 'RDS');
-            
-            // INBOUND FLOW (Green) - Internet to Application
-            if (igw && alb) {
-                connections.push({ 
-                    from: igw.id, 
-                    to: alb.id, 
-                    color: '#2ecc71',
-                    width: 3,
-                    label: '① Inbound'
-                });
-            }
-            
-            if (alb && ec2List.length > 0) {
-                ec2List.forEach((ec2, idx) => {
-                    connections.push({ 
-                        from: alb.id, 
-                        to: ec2.id, 
-                        color: '#3498db',
-                        width: 2,
-                        label: '② Load Balance'
-                    });
-                });
-            }
-            
-            // DATA FLOW (Purple) - Application to Database
-            if (ec2List.length > 0 && rds) {
-                connections.push({ 
-                    from: ec2List[0].id, 
-                    to: rds.id, 
-                    color: '#9b59b6',
-                    width: 2,
-                    label: '③ Database'
-                });
-            }
-            
-            // OUTBOUND FLOW (Orange) - Private to Internet
-            if (nat && ec2List.length > 0) {
-                connections.push({ 
-                    from: ec2List[0].id, 
-                    to: nat.id, 
-                    color: '#e67e22',
-                    width: 2,
-                    label: '④ Updates'
-                });
-            }
-            
-            if (nat && igw) {
-                connections.push({ 
-                    from: nat.id, 
-                    to: igw.id, 
-                    color: '#e74c3c',
-                    width: 2,
-                    label: '⑤ Exit'
-                });
-            }
-            
-            redrawConnections();
-            updateStats();
-            
-            alert(`✅ Connected ${connections.length} intelligent data flows!\n\n` +
-                  `🟢 Inbound: Internet → IGW → ALB → EC2\n` +
-                  `🟣 Data: EC2 ↔ RDS (database queries)\n` +
-                  `🟠 Outbound: EC2 → NAT → IGW (updates)`);
-        }
+async function callGemini(prompt) {
+  const key = localStorage.getItem("GEMINI_API_KEY");
+  if (!key) throw new Error("API key missing");
 
-        function redrawConnections() {
-            const svg = document.getElementById('connections-svg');
-            svg.querySelectorAll('path, text').forEach(el => el.remove());
-            
-            connections.forEach(conn => {
-                const fromEl = document.getElementById(conn.from);
-                const toEl = document.getElementById(conn.to);
-                if (!fromEl || !toEl) return;
-                
-                const canvasRect = document.getElementById('canvas').getBoundingClientRect();
-                const fromRect = fromEl.getBoundingClientRect();
-                const toRect = toEl.getBoundingClientRect();
-                
-                // Calculate connection points (edges instead of centers for cleaner look)
-                const x1 = fromRect.left + fromRect.width / 2 - canvasRect.left;
-                const y1 = fromRect.top + fromRect.height - canvasRect.top;
-                const x2 = toRect.left + toRect.width / 2 - canvasRect.left;
-                const y2 = toRect.top - canvasRect.top;
-                
-                // Create curved path for cleaner flow
-                const midY = (y1 + y2) / 2;
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                
-                // Bezier curve for smooth, professional arrows
-                const d = `M ${x1} ${y1} Q ${x1} ${midY}, ${(x1 + x2) / 2} ${midY} T ${x2} ${y2}`;
-                
-                path.setAttribute('d', d);
-                path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', conn.color || '#3498db');
-                path.setAttribute('stroke-width', conn.width || 2);
-                path.setAttribute('marker-end', 'url(#arrowhead-' + (conn.color || 'blue').replace('#', '') + ')');
-                path.setAttribute('opacity', '0.9');
-                
-                svg.appendChild(path);
-                
-                // Add label if provided
-                if (conn.label) {
-                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('x', (x1 + x2) / 2);
-                    text.setAttribute('y', midY - 5);
-                    text.setAttribute('fill', conn.color || '#3498db');
-                    text.setAttribute('font-size', '11px');
-                    text.setAttribute('font-weight', 'bold');
-                    text.setAttribute('text-anchor', 'middle');
-                    text.textContent = conn.label;
-                    svg.appendChild(text);
-                }
-            });
-        }
+  const res = await fetch(GEMINI_ENDPOINT + "?key=" + key, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
 
-        function exportToCode() {
-            if (elements.length === 0) {
-                alert('Add services first!');
-                return;
-            }
-            generateTerraformCode();
-            generateCloudFormationCode();
-            document.getElementById('codeModal').style.display = 'block';
-        }
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
+}
 
-        function generateTerraformCode() {
-            let code = `# Generated by AWS Architecture Design Studio
-# Architecture: ${elements.length} services
+/* ======================================================
+   AI ACTIONS
+====================================================== */
+async function validateAI() {
+  const out = document.getElementById("output");
+  if (nodes.length === 0) return alert("Add services first");
 
-terraform {
-  required_version = ">= 1.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
+  out.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const text = await callGemini(
+      "Validate this AWS architecture: " + nodes.join(", ")
+    );
+    out.innerHTML = '<div class="result">' + text.replace(/\n/g,"<br>") + '</div>';
+  } catch (e) {
+    out.innerHTML = '<div class="error">' + e.message + '</div>';
   }
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
+async function generateAI() {
+  const out = document.getElementById("output");
+  out.innerHTML = '<div class="spinner"></div>';
 
-`;
-            const vpc = elements.find(e => e.service.name === 'VPC');
-            if (vpc) {
-                const cidr = vpc.service.name === 'VPC' ? '10.0.0.0/16' : '10.0.0.0/16';
-                code += `resource "aws_vpc" "main" {
-  cidr_block           = "${cidr}"
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
-  tags = {
-    Name = "main-vpc"
+  try {
+    const text = await callGemini(
+      "Design a production-ready AWS architecture and list services"
+    );
+    out.innerHTML = '<div class="result">' + text.replace(/\n/g,"<br>") + '</div>';
+  } catch (e) {
+    out.innerHTML = '<div class="error">' + e.message + '</div>';
   }
 }
+</script>
 
-`;
-            }
-            const igw = elements.find(e => e.service.name === 'Internet Gateway');
-            if (igw && vpc) {
-                code += `resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "main-igw"
-  }
-}
-
-`;
-            }
-            const pubSubnets = elements.filter(e => e.service.subnetType === 'public');
-            pubSubnets.forEach((subnet, i) => {
-                code += `resource "aws_subnet" "public_${i+1}" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.${i+1}.0/24"
-  availability_zone       = data.aws_availability_zones.available.names[${i}]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "public-subnet-${i+1}"
-  }
-}
-
-`;
-            });
-            const privSubnets = elements.filter(e => e.service.subnetType === 'private');
-            privSubnets.forEach((subnet, i) => {
-                code += `resource "aws_subnet" "private_${i+1}" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.${10+i}.0/24"
-  availability_zone = data.aws_availability_zones.available.names[${i}]
-
-  tags = {
-    Name = "private-subnet-${i+1}"
-  }
-}
-
-`;
-            });
-            const nat = elements.find(e => e.service.name === 'NAT Gateway');
-            if (nat && pubSubnets.length > 0) {
-                code += `resource "aws_eip" "nat" {
-  domain = "vpc"
-}
-
-resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public_1.id
-
-  tags = {
-    Name = "main-nat-gateway"
-  }
-}
-
-`;
-            }
-            const alb = elements.find(e => e.service.name === 'ALB');
-            if (alb) {
-                code += `resource "aws_lb" "main" {
-  name               = "main-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
-
-  tags = {
-    Name = "main-alb"
-  }
-}
-
-resource "aws_security_group" "alb" {
-  name        = "alb-sg"
-  description = "Security group for ALB"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-`;
-            }
-            const ec2List = elements.filter(e => e.service.name === 'EC2');
-            if (ec2List.length > 0) {
-                code += `resource "aws_instance" "app" {
-  count         = ${ec2List.length}
-  ami           = data.aws_ami.amazon_linux.id
-  instance_type = "t3.micro"
-  subnet_id     = aws_subnet.private_1.id
-  vpc_security_group_ids = [aws_security_group.ec2.id]
-
-  tags = {
-    Name = "app-server-\${count.index + 1}"
-  }
-}
-
-resource "aws_security_group" "ec2" {
-  name        = "ec2-sg"
-  description = "Security group for EC2"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-}
-
-`;
-            }
-            const rds = elements.find(e => e.service.name === 'RDS');
-            if (rds && privSubnets.length > 0) {
-                code += `resource "aws_db_instance" "main" {
-  identifier           = "main-db"
-  engine              = "postgres"
-  engine_version      = "15.3"
-  instance_class      = "db.t3.micro"
-  allocated_storage   = 20
-  db_name             = "myapp"
-  username            = "admin"
-  password            = "changeme123!"  # Use AWS Secrets Manager in production
-  skip_final_snapshot = true
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  db_subnet_group_name   = aws_db_subnet_group.main.name
-
-  tags = {
-    Name = "main-database"
-  }
-}
-
-resource "aws_db_subnet_group" "main" {
-  name       = "main-db-subnet-group"
-  subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
-}
-
-resource "aws_security_group" "rds" {
-  name        = "rds-sg"
-  description = "Security group for RDS"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-`;
-            }
-            code += `data "aws_availability_zones" "available" {
-  state = "available"
-}
-
-output "vpc_id" {
-  value = aws_vpc.main.id
-}
-`;
-            if (alb) {
-                code += `
-output "alb_dns" {
-  value = aws_lb.main.dns_name
-}
-`;
-            }
-            document.getElementById('terraform-content').textContent = code;
-        }
-
-        function generateCloudFormationCode() {
-            let code = `# Generated by AWS Architecture Design Studio
-# Architecture: ${elements.length} services
-
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Auto-generated AWS Architecture'
-
-Resources:
-`;
-            const vpc = elements.find(e => e.service.name === 'VPC');
-            if (vpc) {
-                code += `  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsHostnames: true
-      EnableDnsSupport: true
-      Tags:
-        - Key: Name
-          Value: main-vpc
-
-`;
-            }
-            const igw = elements.find(e => e.service.name === 'Internet Gateway');
-            if (igw && vpc) {
-                code += `  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: main-igw
-
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway
-
-`;
-            }
-            const pubSubnets = elements.filter(e => e.service.subnetType === 'public');
-            pubSubnets.forEach((subnet, i) => {
-                code += `  PublicSubnet${i+1}:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.${i+1}.0/24
-      AvailabilityZone: !Select [${i}, !GetAZs '']
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: public-subnet-${i+1}
-
-`;
-            });
-            const alb = elements.find(e => e.service.name === 'ALB');
-            if (alb) {
-                code += `  ApplicationLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name: main-alb
-      Subnets:
-        - !Ref PublicSubnet1
-        - !Ref PublicSubnet2
-      SecurityGroups:
-        - !Ref ALBSecurityGroup
-      Tags:
-        - Key: Name
-          Value: main-alb
-
-  ALBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for ALB
-      VpcId: !Ref VPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-
-`;
-            }
-            const ec2List = elements.filter(e => e.service.name === 'EC2');
-            if (ec2List.length > 0) {
-                code += `  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref LatestAmiId
-      InstanceType: t3.micro
-      SubnetId: !Ref PrivateSubnet1
-      SecurityGroupIds:
-        - !Ref EC2SecurityGroup
-      Tags:
-        - Key: Name
-          Value: app-server
-
-  EC2SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for EC2
-      VpcId: !Ref VPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          SourceSecurityGroupId: !Ref ALBSecurityGroup
-
-`;
-            }
-            code += `
-Parameters:
-  LatestAmiId:
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-
-Outputs:
-  VPCId:
-    Description: VPC ID
-    Value: !Ref VPC
-`;
-            if (alb) {
-                code += `  ALBDNSName:
-    Description: ALB DNS Name
-    Value: !GetAtt ApplicationLoadBalancer.DNSName
-`;
-            }
-            document.getElementById('cloudformation-content').textContent = code;
-        }
-
-        function switchCodeTab(tab) {
-            currentCodeTab = tab;
-            document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`[onclick="switchCodeTab('${tab}')"]`).classList.add('active');
-            document.getElementById('terraform-code').style.display = tab === 'terraform' ? 'block' : 'none';
-            document.getElementById('cloudformation-code').style.display = tab === 'cloudformation' ? 'block' : 'none';
-        }
-
-        function closeCodeModal() {
-            document.getElementById('codeModal').style.display = 'none';
-        }
-
-        function copyCode() {
-            const content = currentCodeTab === 'terraform' ? 
-                document.getElementById('terraform-content').textContent :
-                document.getElementById('cloudformation-content').textContent;
-            navigator.clipboard.writeText(content);
-            alert('✅ Code copied to clipboard!');
-        }
-
-        function downloadCode() {
-            const content = currentCodeTab === 'terraform' ? 
-                document.getElementById('terraform-content').textContent :
-                document.getElementById('cloudformation-content').textContent;
-            const filename = currentCodeTab === 'terraform' ? 'main.tf' : 'template.yaml';
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-            alert(`✅ Downloaded ${filename}!`);
-        }
-
-        function updateStats() {
-            document.getElementById('element-count').textContent = elements.length;
-            document.getElementById('connection-count').textContent = connections.length;
-            document.getElementById('correction-count').textContent = correctionCount;
-        }
-
-        function clearArchitecture() {
-            // Clear all elements and connections
-            elements = [];
-            connections = [];
-            correctionCount = 0;
-            
-            // Completely reset the canvas
-            const canvas = document.getElementById('canvas');
-            canvas.innerHTML = `
-                <svg id="connections-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
-                    <defs>
-                        <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <polygon points="0 0, 10 3, 0 6" fill="#2ecc71" />
-                        </marker>
-                        <marker id="arrowhead-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <polygon points="0 0, 10 3, 0 6" fill="#3498db" />
-                        </marker>
-                        <marker id="arrowhead-purple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <polygon points="0 0, 10 3, 0 6" fill="#9b59b6" />
-                        </marker>
-                        <marker id="arrowhead-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <polygon points="0 0, 10 3, 0 6" fill="#e67e22" />
-                        </marker>
-                        <marker id="arrowhead-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <polygon points="0 0, 10 3, 0 6" fill="#e74c3c" />
-                        </marker>
-                    </defs>
-                </svg>
-                <div class="empty-state">
-                    <h3>🧠 Intelligent Auto-Design</h3>
-                    <p>Type: <strong>region vpc igw alb 2 ec2 rds</strong></p>
-                    <p style="margin-top: 8px; font-size: 12px;">Watch it auto-design with proper AWS architecture!</p>
-                </div>
-            `;
-            
-            // Clear validation results
-            document.getElementById('validation-results').innerHTML = '';
-            
-            updateStats();
-        }
-
-        async function validateArchitecture() {
-            if (elements.length === 0) {
-                alert('Add services first!');
-                return;
-            }
-            const results = document.getElementById('validation-results');
-            
-            // Check if API key is configured (try to get from various sources)
-            const apiKey = window.GEMINI_API_KEY || localStorage.getItem('GEMINI_API_KEY') || '';
-            
-            if (!apiKey) {
-                results.innerHTML = `
-                    <div class="validation-result" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 10px;">
-                        <h3 style="margin-top: 0;">🔑 API Key Required</h3>
-                        <p style="margin-bottom: 15px;">Enter your Gemini API key to enable AI validation:</p>
-                        
-                        <input type="text" id="gemini-key-input" placeholder="AIza..." 
-                               style="width: 100%; padding: 10px; border-radius: 5px; border: none; font-size: 13px; color: #333; margin-bottom: 10px;">
-                        
-                        <button onclick="saveGeminiKey()" style="width: 100%; padding: 12px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; margin-bottom: 15px;">
-                            💾 Save & Validate
-                        </button>
-                        
-                        <div style="text-align: left; font-size: 13px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px;">
-                            <p><strong>How to get API key:</strong></p>
-                            <ol style="margin: 10px 0; padding-left: 20px;">
-                                <li>Go to: <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: #ffd700;">makersuite.google.com/app/apikey</a></li>
-                                <li>Click "Create API key"</li>
-                                <li>Copy the key</li>
-                                <li>Paste above and click Save</li>
-                            </ol>
-                            <p style="margin-top: 10px;"><strong>💰 Cost:</strong> 100% FREE (1,500 validations/day)</p>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Gemini API call
-            results.innerHTML = '<div class="loading"><div class="spinner"></div><p>Gemini AI is validating your architecture...</p></div>';
-            const desc = elements.map(e => e.service.name).join(', ');
-            
-            try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: `You are an AWS Solutions Architect expert. Validate this AWS architecture: ${desc}
-
-Provide:
-1) Overall Rating: [Production Ready / Needs Work / Major Issues]
-2) Critical Issues: List missing services or security gaps
-3) Specific Fixes: Exactly what to add/change
-4) Best Practices Score: X/10
-
-Be concise and actionable. Use bullet points.`
-                                }]
-                            }],
-                            generationConfig: {
-                                temperature: 0.7,
-                                maxOutputTokens: 1000
-                            }
-                        })
-                    }
-                );
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    results.innerHTML = `<div class="validation-result" style="background: #e74c3c; color: white; padding: 20px;">
-                        <strong>API Error:</strong> ${data.error.message}<br><br>
-                        <p>Possible issues:</p>
-                        <ul style="text-align: left;">
-                            <li>Invalid API key</li>
-                            <li>API key not enabled for Gemini API</li>
-                            <li>Quota exceeded (free tier: 1500/day)</li>
-                        </ul>
-                        <button onclick="localStorage.removeItem('GEMINI_API_KEY'); validateArchitecture();" 
-                                style="margin-top: 15px; padding: 10px 20px; background: white; color: #e74c3c; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                            🔄 Enter New API Key
-                        </button>
-                    </div>`;
-                    return;
-                }
-                
-                const feedback = data.candidates[0].content.parts[0].text;
-                results.innerHTML = `<div class="validation-result">
-                    <h3 style="color: #2ecc71; margin-top: 0;">✅ AI Validation Results</h3>
-                    ${feedback.replace(/\n/g, '<br>')}
-                    <p style="margin-top: 20px; font-size: 12px; color: #7f8c8d;">
-                        Powered by Google Gemini 1.5 Pro • 100% FREE
-                    </p>
-                    <button onclick="localStorage.removeItem('GEMINI_API_KEY'); alert('API key removed. Refresh to enter a new one.');" 
-                            style="margin-top: 10px; padding: 8px 15px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        🔑 Change API Key
-                    </button>
-                </div>`;
-                
-            } catch (error) {
-                results.innerHTML = `<div class="validation-result" style="background: #e74c3c; color: white; padding: 20px;">
-                    <strong>Error:</strong> ${error.message}<br><br>
-                    <p>Troubleshooting:</p>
-                    <ul style="text-align: left;">
-                        <li>Check internet connection</li>
-                        <li>Verify API key is correct</li>
-                        <li>Try refreshing the page</li>
-                    </ul>
-                    <button onclick="localStorage.removeItem('GEMINI_API_KEY'); validateArchitecture();" 
-                            style="margin-top: 15px; padding: 10px 20px; background: white; color: #e74c3c; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                        🔄 Enter New API Key
-                    </button>
-                </div>`;
-            }
-        }
-        
-        // Helper function to save API key
-        function saveGeminiKey() {
-            const input = document.getElementById('gemini-key-input');
-            const key = input.value.trim();
-            if (!key) {
-                alert('Please enter an API key!');
-                return;
-            }
-            if (!key.startsWith('AIza')) {
-                alert('Invalid Gemini API key format. Keys start with "AIza"');
-                return;
-            }
-            localStorage.setItem('GEMINI_API_KEY', key);
-            window.GEMINI_API_KEY = key;
-            alert('✅ API key saved! Now validating...');
-            validateArchitecture();
-        }
-
-        async function generateFullDesign() {
-            const results = document.getElementById('validation-results');
-            
-            const apiKey = window.GEMINI_API_KEY || localStorage.getItem('GEMINI_API_KEY') || '';
-            
-            if (!apiKey) {
-                results.innerHTML = `
-                    <div class="validation-result" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; padding: 25px; border-radius: 10px;">
-                        <h3 style="margin-top: 0;">🔑 API Key Required</h3>
-                        <p>Please set up your API key first by clicking "✅ Validate Design" button</p>
-                        
-                        <h4 style="margin-top: 20px;">💡 Or Try Manual Design:</h4>
-                        <p style="text-align: left; font-size: 14px;">Type in the input box:</p>
-                        <ul style="text-align: left; font-size: 13px;">
-                            <li><code>region vpc igw alb 2 ec2 rds</code></li>
-                            <li><code>region vpc lambda api dynamodb</code></li>
-                            <li><code>region 2 az vpc igw nat alb asg rds s3</code></li>
-                        </ul>
-                        <p style="text-align: left;">Then click <strong>"Auto-Design"</strong></p>
-                    </div>
-                `;
-                return;
-            }
-            
-            results.innerHTML = '<div class="loading"><div class="spinner"></div><p>Gemini AI is generating complete architecture...</p></div>';
-            
-            try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: `Design a production-ready, highly-available AWS 3-tier web application.
-
-Provide:
-1) Architecture name
-2) Complete list of services needed
-3) Why each service (1 sentence)
-4) How they connect
-5) Key features (HA, security, scalability)
-
-Format as a clear implementation guide that can be typed into the tool.
-
-Example format:
-"Type this: region vpc 2 az igw nat alb asg ec2 rds s3 cloudwatch
-
-This creates:
-- Region with VPC
-- 2 AZs for high availability
-- IGW for internet access
-- NAT for private subnet internet
-- ALB for load balancing
-- Auto Scaling Group for elasticity
-- RDS Multi-AZ for database redundancy
-- S3 for static assets
-- CloudWatch for monitoring"`
-                                }]
-                            }],
-                            generationConfig: {
-                                temperature: 0.7,
-                                maxOutputTokens: 1500
-                            }
-                        })
-                    }
-                );
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    results.innerHTML = `<div class="validation-result" style="background: #e74c3c; color: white; padding: 20px;">
-                        <strong>API Error:</strong> ${data.error.message}
-                    </div>`;
-                    return;
-                }
-                
-                const architecture = data.candidates[0].content.parts[0].text;
-                results.innerHTML = `<div class="validation-result">
-                    <h3 style="color: #2ecc71; margin-top: 0;">🏗️ AI-Generated Architecture</h3>
-                    ${architecture.replace(/\n/g, '<br>')}
-                    <p style="margin-top: 20px; font-size: 12px; color: #7f8c8d;">
-                        Powered by Google Gemini 1.5 Pro • 100% FREE
-                    </p>
-                </div>`;
-                
-            } catch (error) {
-                results.innerHTML = `<div class="validation-result" style="background: #e74c3c; color: white; padding: 20px;">
-                    <strong>Error:</strong> ${error.message}<br><br>
-                    Make sure your API key is valid.
-                </div>`;
-            }
-        }
-
-        // Global functions
-        window.autoDesign = autoDesign;
-        window.setExample = setExample;
-        window.clearArchitecture = clearArchitecture;
-        window.validateArchitecture = validateArchitecture;
-        window.generateFullDesign = generateFullDesign;
-        window.autoConnectServices = autoConnectServices;
-        window.exportToCode = exportToCode;
-        window.switchCodeTab = switchCodeTab;
-        window.closeCodeModal = closeCodeModal;
-        window.copyCode = copyCode;
-        window.downloadCode = downloadCode;
-        window.saveGeminiKey = saveGeminiKey;
-
-        // Initialize
-        initServices();
-        setupCanvas();
-        updateStats();
-    </script>
 </body>
 </html>
