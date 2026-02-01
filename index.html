@@ -1631,16 +1631,43 @@ Outputs:
         }
 
         function clearArchitecture() {
-            document.getElementById('canvas').innerHTML = `
+            // Clear all elements and connections
+            elements = [];
+            connections = [];
+            correctionCount = 0;
+            
+            // Completely reset the canvas
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = `
+                <svg id="connections-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+                    <defs>
+                        <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 3, 0 6" fill="#2ecc71" />
+                        </marker>
+                        <marker id="arrowhead-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 3, 0 6" fill="#3498db" />
+                        </marker>
+                        <marker id="arrowhead-purple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 3, 0 6" fill="#9b59b6" />
+                        </marker>
+                        <marker id="arrowhead-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 3, 0 6" fill="#e67e22" />
+                        </marker>
+                        <marker id="arrowhead-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <polygon points="0 0, 10 3, 0 6" fill="#e74c3c" />
+                        </marker>
+                    </defs>
+                </svg>
                 <div class="empty-state">
                     <h3>🧠 Intelligent Auto-Design</h3>
                     <p>Type: <strong>region vpc igw alb 2 ec2 rds</strong></p>
                     <p style="margin-top: 8px; font-size: 12px;">Watch it auto-design with proper AWS architecture!</p>
                 </div>
             `;
-            elements = [];
-            connections = [];
-            correctionCount = 0;
+            
+            // Clear validation results
+            document.getElementById('validation-results').innerHTML = '';
+            
             updateStats();
         }
 
